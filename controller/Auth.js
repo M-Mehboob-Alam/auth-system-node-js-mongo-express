@@ -64,7 +64,7 @@ exports.login = async(req, res) => {
                 data : 'email and password are required',
             });
         }
-        const user = await User.findOne({email});
+        let user = await User.findOne({email});
         if(!user){
             return res.status(400).json({
                 success: false,
@@ -86,15 +86,28 @@ exports.login = async(req, res) => {
             role:user.role
         }
         let token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '12'});
-        // user.token = token;
+        user = user.toObject()
+        user.token = token;
         user.password = undefined;
         user.readPassword = undefined;
        
-        return res.status(200).json({
+        // return res.status(200).json({
+        //     success: true,
+        //     message: 'User logged in successfully',
+        //     token:token,
+        //     data : user
+        // });
+        let option = {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            htttpOnly:true,
+        }
+        let decode = jwt.decode(token, process.env.JWT_SECRET);
+        console.log(decode);
+        res.cookie('token', token, option).status(200).json({
             success: true,
-            message: 'User logged in successfully',
             token:token,
-            data : user
+            user:user,
+            message:'user loggedin successful!'
         });
 
     } catch (error) {
