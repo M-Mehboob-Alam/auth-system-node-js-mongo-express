@@ -1,7 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User= require('../models/User');
-
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 exports.signup = async (req, res) => {
     try {
         
@@ -32,9 +33,12 @@ exports.signup = async (req, res) => {
             readPassword:password,
             role
         });
+
+       
         return res.status(201).json({
             success: true,
             message: 'User registered successfully',
+          
             data : user
         });
 
@@ -48,4 +52,56 @@ exports.signup = async (req, res) => {
         });
     }
 
+}
+
+exports.login = async(req, res) => {
+    try {
+        const {email, password} = req.body;
+        if(!email ||!password){
+            return res.status(400).json({
+                success: false,
+                message: 'email and password are required',
+                data : 'email and password are required',
+            });
+        }
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(400).json({
+                success: false,
+                message: 'User does not exist',
+                data : 'User does not exist',
+            });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid password or email',
+                data : 'Invalid password or email',
+            });
+        }
+        let payload = {
+            email:user.email,
+            id:user._id,
+            role:user.role
+        }
+        let token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '12'});
+        // user.token = token;
+        user.password = undefined;
+        user.readPassword = undefined;
+       
+        return res.status(200).json({
+            success: true,
+            message: 'User logged in successfully',
+            token:token,
+            data : user
+        });
+
+    } catch (error) {
+        return  res.status(500).json({
+            success: false,
+            message: 'error while logging in',
+            data : error.message
+        });
+    }
 }
