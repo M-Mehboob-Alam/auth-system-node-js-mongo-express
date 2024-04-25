@@ -103,12 +103,18 @@ exports.login = async(req, res) => {
         }
         let decode = jwt.decode(token, process.env.JWT_SECRET);
         console.log(decode);
-        res.cookie('token', token, option).status(200).json({
+        res.status(200).json({
             success: true,
             token:token,
             user:user,
             message:'user loggedin successful!'
         });
+        // res.cookie('token', token, option).status(200).json({
+        //     success: true,
+        //     token:token,
+        //     user:user,
+        //     message:'user loggedin successful!'
+        // });
 
     } catch (error) {
         return  res.status(500).json({

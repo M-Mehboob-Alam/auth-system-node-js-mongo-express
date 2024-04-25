@@ -9,7 +9,7 @@ router.post('/signup', signup);
 router.get('/test/auth/route', auth,isAdmin, (req, res)=>{
     return res.status(200).json({
         success: true,
-        message: 'welcome to auth route protected',
+        message: 'welcome to auth route protected for admin',
         
         })
  });

@@ -3,7 +3,11 @@ require('dotenv').config();
 // middlewares for auth isStudent isAdmin
 exports.auth = (req, res, next) => {
     try {
-        const token = req.body.token;
+        console.log('body', req.body.token);
+        console.log('cookie', req.cookies.token);
+        console.log('bearer', req.header('Authorization'));
+        const token = req.body.token || req.cookies.token|| req.header('Authorization').replace('Bearer ', '');
+        console.log(token);
         if (!token) {
             return res.status(400).json({
                 success: false,
@@ -61,8 +65,8 @@ exports.isAdmin = (req,res, next)=>{
         if(req.user.role !== 'Admin'){
             return res.status(401).json({
                 success: false,
-                message: 'you are not authorized to access this route',
-                data : 'you are not authorized to access this route',
+                message: 'you are not authorized to access this route admin can access',
+                data : 'you are not authorized to access this route admin can access',
             });
         }
         next();
