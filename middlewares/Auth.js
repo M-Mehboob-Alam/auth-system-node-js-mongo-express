@@ -17,7 +17,7 @@ exports.auth = (req, res, next) => {
         }
 
         try {
-            const decoded = jwt.decode(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             console.log(decoded);
             if (!decoded) {
                 return res.status(500).json({
